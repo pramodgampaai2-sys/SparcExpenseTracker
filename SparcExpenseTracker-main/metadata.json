@@ -1,0 +1,5 @@
+{
+  "name": "Sparc Expense Tracker",
+  "description": "A modern, AI-powered expense tracker that helps you qualify and categorize expenses by parsing SMS messages. Visualize your spending habits with insightful reports and charts.",
+  "requestFramePermissions": []
+}
