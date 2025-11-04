@@ -1,9 +1,8 @@
-
 {
   "name": "sparc-expense-tracker-monorepo",
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "vercel-build": "cd SparcExpenseTracker-main && npm install && npm run build"
+    "vercel-build": "cd SparcExpenseTracker-main && npm install && npm run build && mv dist ../"
   }
 }

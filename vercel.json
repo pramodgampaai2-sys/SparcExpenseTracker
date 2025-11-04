@@ -1,6 +1,5 @@
-
 {
-  "outputDirectory": "SparcExpenseTracker-main/dist",
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/api/:path*",
