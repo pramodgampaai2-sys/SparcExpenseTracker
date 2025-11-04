@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "vercel-build": "cd SparcExpenseTracker-main && npm install && npm run build && mv dist ../"
+    "vercel-build": "cd SparcExpenseTracker-main && npm install && npm run build && cp -a dist/. ../"
   }
 }
