@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "SparcExpenseTracker-main/api/**/*.ts": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/SparcExpenseTracker-main/api/:path*"
+    }
+  ]
+}
