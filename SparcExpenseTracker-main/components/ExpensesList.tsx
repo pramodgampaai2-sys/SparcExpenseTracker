@@ -1,5 +1,4 @@
-
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { Expense } from '../types';
 import ExpenseItem from './ExpenseItem';
 import TransactionItem from './TransactionItem';
@@ -31,13 +30,34 @@ interface ExpensesListProps {
   onEdit: (transactionId: string) => void;
   currencySymbol: string;
   allCategoryColors: Record<string, string>;
+  scrollToTransactionId: string | null;
+  onScrollComplete: () => void;
 }
 
-const ExpensesList: React.FC<ExpensesListProps> = ({ expenses, deleteTransaction, onEdit, currencySymbol, allCategoryColors }) => {
+const ExpensesList: React.FC<ExpensesListProps> = ({ expenses, deleteTransaction, onEdit, currencySymbol, allCategoryColors, scrollToTransactionId, onScrollComplete }) => {
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
   
   const getCurrentMonth = () => new Date().toISOString().slice(0, 7);
   const [selectedMonth, setSelectedMonth] = useState<string>(getCurrentMonth());
+
+  useEffect(() => {
+    if (scrollToTransactionId) {
+        // Use a timeout to allow the DOM to update after page navigation
+        setTimeout(() => {
+            const element = document.getElementById(`transaction-${scrollToTransactionId}`);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.classList.add('highlight-flash');
+                setTimeout(() => {
+                    element.classList.remove('highlight-flash');
+                    onScrollComplete();
+                }, 1500); // Duration should match animation
+            } else {
+                onScrollComplete(); // Reset state even if element not found
+            }
+        }, 100); // Small delay for DOM to render
+    }
+  }, [scrollToTransactionId, onScrollComplete]);
 
   const availableMonths: MonthOption[] = useMemo(() => {
     const monthSet = new Set<string>();

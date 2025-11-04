@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import type { Expense } from '../types';
 import { TrashIcon, PencilIcon } from './Icons';
@@ -26,7 +24,7 @@ const ExpenseItem: React.FC<ExpenseItemProps> = ({ expense, onDelete, onEdit, is
   };
 
   return (
-    <li className="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+    <li id={`transaction-${expense.transactionId}`} className="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
       <div className="flex items-center flex-1 min-w-0">
         <div className="w-2 h-10 rounded-full flex-shrink-0" style={{ backgroundColor: categoryColor }}></div>
         <div className="ml-4 min-w-0">

@@ -20,6 +20,14 @@ const initializeCategories = (): CategoryDefinition[] => {
   }));
 };
 
+const sortExpenses = (expenses: Expense[]): Expense[] => {
+  return expenses.sort((a, b) => {
+    const dateComparison = new Date(b.date).getTime() - new Date(a.date).getTime();
+    if (dateComparison !== 0) return dateComparison;
+    return parseInt(b.transactionId, 10) - parseInt(a.transactionId, 10);
+  });
+};
+
 const App: React.FC = () => {
   const [expenses, setExpenses] = useLocalStorage<Expense[]>('expenses', []);
   const [categories, setCategories] = useLocalStorage<CategoryDefinition[]>('categories', []);
@@ -27,6 +35,7 @@ const App: React.FC = () => {
   const [editingTransaction, setEditingTransaction] = useState<Expense[] | null>(null);
   const [isAddFormDirty, setIsAddFormDirty] = useState(false);
   const [currency, setCurrency] = useLocalStorage<Currency>('currency', { code: 'INR', name: 'Indian Rupee', symbol: '₹' });
+  const [scrollToTransactionId, setScrollToTransactionId] = useState<string | null>(null);
 
   // One-time initialization and migration
   useEffect(() => {
@@ -61,10 +70,11 @@ const App: React.FC = () => {
       setCategories(finalCategories);
     }
 
-    // Migrate expenses to include transactionId
-    const expensesNeedMigration = expenses.some(e => !e.transactionId);
-    if (expensesNeedMigration) {
-      setExpenses(prevExpenses => prevExpenses.map(e => e.transactionId ? e : { ...e, transactionId: e.id }));
+    // Migrate expenses to include transactionId and sort them
+    const expensesNeedProcessing = expenses.some(e => !e.transactionId);
+    if (expensesNeedProcessing) {
+      const migratedExpenses = expenses.map(e => e.transactionId ? e : { ...e, transactionId: e.id });
+      setExpenses(sortExpenses(migratedExpenses));
     }
   }, []);
 
@@ -91,8 +101,9 @@ const App: React.FC = () => {
       category: split.category
     }));
 
-    setExpenses(prevExpenses => [...newExpenses, ...prevExpenses]);
+    setExpenses(prevExpenses => sortExpenses([...newExpenses, ...prevExpenses]));
     setIsAddFormDirty(false);
+    setScrollToTransactionId(newTransactionId);
     setActivePage(Page.Expenses); 
   }, [setExpenses]);
 
@@ -123,16 +134,21 @@ const App: React.FC = () => {
       category: split.category
     }));
 
-    // Atomically remove all old expenses for this transactionId and add the new ones
-    setExpenses(prev => [
+    // Atomically remove all old expenses for this transactionId and add the new ones, then sort
+    setExpenses(prev => sortExpenses([
       ...prev.filter(e => e.transactionId !== transactionId),
       ...updatedExpenses
-    ]);
+    ]));
 
     setEditingTransaction(null);
     setIsAddFormDirty(false);
+    setScrollToTransactionId(transactionId);
     setActivePage(Page.Expenses);
   }, [setExpenses]);
+  
+  const handleScrollComplete = useCallback(() => {
+    setScrollToTransactionId(null);
+  }, []);
   
   const handleNavigate = (targetPage: Page) => {
     if (activePage === Page.Add && isAddFormDirty) {
@@ -161,7 +177,7 @@ const App: React.FC = () => {
       <main className="flex-grow container mx-auto max-w-lg p-4 pb-24">
         <ErrorBoundary>
           {activePage === Page.Dashboard && <Dashboard expenses={expenses} currencySymbol={currency.symbol} onNavigate={handleNavigate} allCategoryColors={allCategoryColors} allCategoryNames={allCategoryNames} />}
-          {activePage === Page.Expenses && <ExpensesList expenses={expenses} deleteTransaction={deleteTransaction} onEdit={handleStartEdit} currencySymbol={currency.symbol} allCategoryColors={allCategoryColors} />}
+          {activePage === Page.Expenses && <ExpensesList expenses={expenses} deleteTransaction={deleteTransaction} onEdit={handleStartEdit} currencySymbol={currency.symbol} allCategoryColors={allCategoryColors} scrollToTransactionId={scrollToTransactionId} onScrollComplete={handleScrollComplete} />}
           {activePage === Page.Add && <AddExpense onAddTransaction={addTransaction} transactionToEdit={editingTransaction} onUpdateTransaction={updateTransaction} onFormDirtyChange={setIsAddFormDirty} currencySymbol={currency.symbol} allCategories={allCategoryNames} />}
           {activePage === Page.Settings && <Settings selectedCurrency={currency} onCurrencyChange={setCurrency} expenses={expenses} onExpensesChange={setExpenses} categories={categories} onCategoriesChange={setCategories} />}
         </ErrorBoundary>

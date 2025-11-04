@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { Expense } from '../types';
 import { TrashIcon, PencilIcon, DocumentDuplicateIcon } from './Icons';
@@ -26,7 +25,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onDelete
   };
 
   return (
-    <li className="bg-white rounded-lg shadow-sm overflow-hidden">
+    <li id={`transaction-${transactionId}`} className="bg-white rounded-lg shadow-sm overflow-hidden">
       <div className="flex items-center justify-between p-3">
         <div className="flex items-center flex-1 min-w-0">
             <div className="w-10 h-10 rounded-full flex-shrink-0 bg-indigo-50 flex items-center justify-center text-indigo-500">
