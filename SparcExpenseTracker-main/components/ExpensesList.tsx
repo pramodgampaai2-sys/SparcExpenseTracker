@@ -30,15 +30,17 @@ interface ExpensesListProps {
   onEdit: (transactionId: string) => void;
   currencySymbol: string;
   allCategoryColors: Record<string, string>;
+  allCategories: string[];
   scrollToTransactionId: string | null;
   onScrollComplete: () => void;
 }
 
-const ExpensesList: React.FC<ExpensesListProps> = ({ expenses, deleteTransaction, onEdit, currencySymbol, allCategoryColors, scrollToTransactionId, onScrollComplete }) => {
+const ExpensesList: React.FC<ExpensesListProps> = ({ expenses, deleteTransaction, onEdit, currencySymbol, allCategoryColors, allCategories, scrollToTransactionId, onScrollComplete }) => {
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
   
   const getCurrentMonth = () => new Date().toISOString().slice(0, 7);
   const [selectedMonth, setSelectedMonth] = useState<string>(getCurrentMonth());
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   useEffect(() => {
     if (scrollToTransactionId) {
@@ -76,8 +78,12 @@ const ExpensesList: React.FC<ExpensesListProps> = ({ expenses, deleteTransaction
   }, [expenses]);
 
   const filteredExpenses = useMemo(() => {
-    return expenses.filter(expense => expense.date.startsWith(selectedMonth));
-  }, [expenses, selectedMonth]);
+    const byMonth = expenses.filter(expense => expense.date.startsWith(selectedMonth));
+    if (selectedCategory === 'all') {
+      return byMonth;
+    }
+    return byMonth.filter(expense => expense.category === selectedCategory);
+  }, [expenses, selectedMonth, selectedCategory]);
 
   // Fix: Add an explicit type annotation to `groupedByDate` to ensure TypeScript correctly infers the types for `Object.entries` and resolves the "Property 'map' does not exist on type 'unknown'" error.
   const groupedByDate: Record<string, Expense[][]> = useMemo(() => {
@@ -110,7 +116,8 @@ const ExpensesList: React.FC<ExpensesListProps> = ({ expenses, deleteTransaction
         <p className="text-gray-500">A complete history of your transactions.</p>
       </header>
 
-      <div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
           <label htmlFor="month-filter" className="sr-only">Filter by Month</label>
           <select
               id="month-filter"
@@ -126,6 +133,25 @@ const ExpensesList: React.FC<ExpensesListProps> = ({ expenses, deleteTransaction
                   </option>
               ))}
           </select>
+        </div>
+        <div>
+          <label htmlFor="category-filter" className="sr-only">Filter by Category</label>
+          <select
+              id="category-filter"
+              name="category-filter"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3"
+              aria-label="Select category to display expenses"
+          >
+              <option value="all">All Categories</option>
+              {allCategories.map(cat => (
+                  <option key={cat} value={cat}>
+                      {cat}
+                  </option>
+              ))}
+          </select>
+        </div>
       </div>
       
       {filteredExpenses.length > 0 ? (

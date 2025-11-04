@@ -174,10 +174,10 @@ const App: React.FC = () => {
   
   return (
     <div className="min-h-screen font-sans text-gray-800 bg-gray-50 flex flex-col">
-      <main className="flex-grow container mx-auto max-w-lg p-4 pb-24">
+      <main className="flex-grow container mx-auto max-w-lg p-4 pb-32">
         <ErrorBoundary>
           {activePage === Page.Dashboard && <Dashboard expenses={expenses} currencySymbol={currency.symbol} onNavigate={handleNavigate} allCategoryColors={allCategoryColors} allCategoryNames={allCategoryNames} />}
-          {activePage === Page.Expenses && <ExpensesList expenses={expenses} deleteTransaction={deleteTransaction} onEdit={handleStartEdit} currencySymbol={currency.symbol} allCategoryColors={allCategoryColors} scrollToTransactionId={scrollToTransactionId} onScrollComplete={handleScrollComplete} />}
+          {activePage === Page.Expenses && <ExpensesList expenses={expenses} deleteTransaction={deleteTransaction} onEdit={handleStartEdit} currencySymbol={currency.symbol} allCategoryColors={allCategoryColors} scrollToTransactionId={scrollToTransactionId} onScrollComplete={handleScrollComplete} allCategories={allCategoryNames} />}
           {activePage === Page.Add && <AddExpense onAddTransaction={addTransaction} transactionToEdit={editingTransaction} onUpdateTransaction={updateTransaction} onFormDirtyChange={setIsAddFormDirty} currencySymbol={currency.symbol} allCategories={allCategoryNames} />}
           {activePage === Page.Settings && <Settings selectedCurrency={currency} onCurrencyChange={setCurrency} expenses={expenses} onExpensesChange={setExpenses} categories={categories} onCategoriesChange={setCategories} />}
         </ErrorBoundary>
